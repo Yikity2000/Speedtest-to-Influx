@@ -1,0 +1,12 @@
+#!/bin/bash
+
+content=$(/usr/bin/speedtest -f json-pretty --accept-license --accept-gdpr -s 4546) 
+	
+	server=($(jq -r  '.server.name' <<< "${content}" ))
+	download=($(jq -r  '.download.bandwidth' <<< "${content}" ))
+	upload=($(jq -r  '.upload.bandwidth' <<< "${content}" ))
+	ping=($(jq -r  '.ping.latency' <<< "${content}" ))
+	jitter=($(jq -r  '.ping.jitter' <<< "${content}" ))
+
+echo "$server"
+curl -i -XPOST "https://localhost:8086/write?db=speedtest&u=xxx&p=xxx" --insecure --data-binary "speedtest,hostname=Maulberry,server=\"$server\" download=$download,upload=$upload,ping=$ping,jitter=$jitter"
